@@ -2,7 +2,7 @@
 
 A FiveM bodycam overlay resource with three visual styles. Integrates with **night_ers** for automatic on-shift detection — the overlay only appears while a player is on duty.
 
-Pair it with [bonez-bodycam_evidence]((https://github.com/Bonezlfc/Bonez-Bodycam_Evidence)) to add court-grade automatic video recording and an in-game evidence viewer.
+Pair it with [bonez-bodycam_evidence](https://github.com/Bonezlfc/Bonez-Bodycam_Evidence) to add court-grade automatic video recording and an in-game evidence viewer.
 
 ---
 
@@ -23,7 +23,7 @@ Pair it with [bonez-bodycam_evidence]((https://github.com/Bonezlfc/Bonez-Bodycam
 ## Requirements
 
 - **FiveM** server (OneSync Legacy or Infinity)
-- [**night_ers**](https://github.com/night-scripts/night_ers) — controls on-shift detection
+- [**night_ers**]([https://github.com/night-scripts/night_ers](https://store.nights-software.com/category/ersgamemode)) — controls on-shift detection
 
 ---
 
