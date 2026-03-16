@@ -23,30 +23,17 @@ ERSState = {
 
 -- ── helpers ──────────────────────────────────────────────────
 
--- Safe wrapper: calls fn, logs any error, returns (ok, result).  Never throws.
-local function SafeExport(exportName, fn)
+-- Safe wrapper: calls fn, returns (ok, result).  Never throws.
+local function SafeExport(fn)
     local ok, result = pcall(fn)
-    if not ok then
-        ErrorPrint('ERS', 'Export call failed [' .. exportName .. ']: ' .. tostring(result))
-    end
     return ok, result
 end
-
--- ── change-tracking (for debug prints) ───────────────────────
-
-local _prevAvail    = nil
-local _prevShift    = nil
-local _prevCallout  = nil
-local _prevTracking = nil
 
 -- ── poll ─────────────────────────────────────────────────────
 
 local function PollERS()
     -- Bail immediately if the ERS resource isn't running
     if GetResourceState('night_ers') ~= 'started' then
-        if ERSState.available ~= false then
-            DebugPrint('ERS', 'night_ers stopped — ERS state cleared')
-        end
         ERSState.available       = false
         ERSState.onShift         = false
         ERSState.serviceType     = nil
@@ -55,31 +42,28 @@ local function PollERS()
         return
     end
 
-    if not ERSState.available then
-        DebugPrint('ERS', 'night_ers detected — starting polls')
-    end
     ERSState.available = true
 
     local ok, val
 
-    ok, val = SafeExport('getIsPlayerOnShift', function()
+    ok, val = SafeExport(function()
         return exports['night_ers']:getIsPlayerOnShift()
     end)
     ERSState.onShift = ok and (val == true) or false
 
     -- Only pull the detailed state when on shift — skip unnecessary calls
     if ERSState.onShift then
-        ok, val = SafeExport('getPlayerActiveServiceType', function()
+        ok, val = SafeExport(function()
             return exports['night_ers']:getPlayerActiveServiceType()
         end)
         ERSState.serviceType = (ok and type(val) == 'string') and val or nil
 
-        ok, val = SafeExport('getIsPlayerAttachedToCallout', function()
+        ok, val = SafeExport(function()
             return exports['night_ers']:getIsPlayerAttachedToCallout()
         end)
         ERSState.attachedCallout = ok and (val == true) or false
 
-        ok, val = SafeExport('getIsPlayerTrackingUnit', function()
+        ok, val = SafeExport(function()
             return exports['night_ers']:getIsPlayerTrackingUnit()
         end)
         ERSState.trackingUnit = ok and (val == true) or false
@@ -87,25 +71,6 @@ local function PollERS()
         ERSState.serviceType     = nil
         ERSState.attachedCallout = false
         ERSState.trackingUnit    = false
-    end
-
-    -- Debug: print only when state changes
-    if ERSState.available ~= _prevAvail then
-        DebugPrint('ERS', 'available → ' .. tostring(ERSState.available))
-        _prevAvail = ERSState.available
-    end
-    if ERSState.onShift ~= _prevShift then
-        DebugPrint('ERS', 'onShift → ' .. tostring(ERSState.onShift)
-            .. (ERSState.serviceType and (' | service: ' .. ERSState.serviceType) or ''))
-        _prevShift = ERSState.onShift
-    end
-    if ERSState.attachedCallout ~= _prevCallout then
-        DebugPrint('ERS', 'attachedCallout → ' .. tostring(ERSState.attachedCallout))
-        _prevCallout = ERSState.attachedCallout
-    end
-    if ERSState.trackingUnit ~= _prevTracking then
-        DebugPrint('ERS', 'trackingUnit → ' .. tostring(ERSState.trackingUnit))
-        _prevTracking = ERSState.trackingUnit
     end
 end
 
@@ -130,9 +95,14 @@ function IsRecording()
     return ok and val == true
 end
 
--- Returns the player's server ID as the unit label.
+-- Returns the unit label for overlay display.
+-- Prefers the player's manually-set unit ID (badge / callsign);
+-- falls back to the server ID if none is set.
 function GetUnitLabel(uid)
-    return tostring(uid)
+    if Settings and Settings.manualUnitId and Settings.manualUnitId ~= '' then
+        return Settings.manualUnitId
+    end
+    return uid or tostring(GetPlayerServerId(PlayerId()))
 end
 
 -- Returns the active service-type label for overlay display.
@@ -147,3 +117,18 @@ function GetActiveServiceType()
     end
     return nil
 end
+
+-- ── Exports for bonez-bodycam_evidence ────────────────────────────────────
+
+-- Returns the player's current unit ID (manual if set, otherwise server ID).
+exports('getUnitId', function()
+    if Settings and Settings.manualUnitId and Settings.manualUnitId ~= '' then
+        return Settings.manualUnitId
+    end
+    return tostring(GetPlayerServerId(PlayerId()))
+end)
+
+-- Returns the active service type string, or nil if none.
+exports('getActiveServiceType', function()
+    return GetActiveServiceType()
+end)

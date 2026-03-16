@@ -22,7 +22,6 @@ RegisterKeyMapping(
 RegisterCommand(Config.ToggleCommand, function()
     -- Block turning on while not on duty
     if not Settings.enabled and not ERSState.onShift then
-        DebugPrint('MAIN', 'Toggle blocked — not on shift')
         BeginTextCommandThefeedPost('STRING')
         AddTextComponentSubstringPlayerName('~r~BODYCAM~s~: You must be on duty to enable the bodycam.')
         EndTextCommandThefeedPostTicker(false, true)
@@ -31,16 +30,13 @@ RegisterCommand(Config.ToggleCommand, function()
 
     Settings.enabled = not Settings.enabled
     Settings.Save()
-    DebugPrint('MAIN', 'Toggle → enabled: ' .. tostring(Settings.enabled))
 
     -- Turning the bodycam on starts recording; turning it off stops recording.
     -- No-op if evidence is not running or already in the correct state.
     if Settings.enabled then
-        local ok, err = pcall(function() exports['bonez-bodycam_evidence']:startManualRecord() end)
-        if not ok then DebugPrint('MAIN', 'startManualRecord export error: ' .. tostring(err)) end
+        pcall(function() exports['bonez-bodycam_evidence']:startManualRecord() end)
     else
-        local ok, err = pcall(function() exports['bonez-bodycam_evidence']:stopManualRecord() end)
-        if not ok then DebugPrint('MAIN', 'stopManualRecord export error: ' .. tostring(err)) end
+        pcall(function() exports['bonez-bodycam_evidence']:stopManualRecord() end)
     end
 
     BeginTextCommandThefeedPost('STRING')
@@ -73,7 +69,7 @@ Citizen.CreateThread(function()
 
         local uid       = tostring(GetPlayerServerId(PlayerId()))
         local active    = Settings.enabled and IsRecording()
-        local unitLabel = GetUnitLabel(uid)
+        local unitLabel = GetUnitLabel(uid)   -- custom badge/callsign, or server ID fallback
 
         SendNUIMessage({
             action       = 'setState',
@@ -81,8 +77,8 @@ Citizen.CreateThread(function()
             style        = Settings.style,
             position     = Settings.position,
             scale        = Settings.scale,
-            uid          = uid,
-            unitLabel    = unitLabel,
+            uid          = uid,          -- raw server ID (used for device serial in NUI)
+            unitLabel    = unitLabel,    -- display label (custom or server ID)
             showUnit     = Settings.showUnit,
             showService  = Settings.showService,
             showCallout  = Settings.showCallout,
@@ -94,9 +90,6 @@ Citizen.CreateThread(function()
 
         -- Only fire the server event when state actually changes
         if active ~= lastServerActive then
-            DebugPrint('MAIN', 'Server active state → ' .. tostring(active)
-                .. ' | onShift: ' .. tostring(ERSState.onShift)
-                .. ' | enabled: ' .. tostring(Settings.enabled))
             TriggerServerEvent('bodycam:setActive', active)
             lastServerActive = active
         end
@@ -124,7 +117,6 @@ end)
 -- a unit is being tracked. Session-only — does NOT persist to KVP.
 
 exports('setOverlayEnabled', function(state)
-    DebugPrint('MAIN', 'setOverlayEnabled → ' .. tostring(state))
     Settings.enabled = (state == true)
 end)
 
@@ -147,11 +139,6 @@ end)
 
 RegisterNetEvent('bodycam:serverTime')
 AddEventHandler('bodycam:serverTime', function(adjustedEpoch)
-    if type(adjustedEpoch) ~= 'number' then
-        ErrorPrint('MAIN', 'bodycam:serverTime received invalid epoch: ' .. tostring(adjustedEpoch))
-        return
-    end
-    DebugPrint('MAIN', 'Server time synced — adjustedEpoch: ' .. tostring(adjustedEpoch))
     SendNUIMessage({
         action       = 'syncServerTime',
         serverTimeMs = adjustedEpoch * 1000,
@@ -178,6 +165,5 @@ RegisterNetEvent('bodycam:playBeep', function(sx, sy, sz, range)
 
     -- Linear fade: full volume at 0 m, silent at range m
     local vol = math.max(0.0, math.min(1.0, (1.0 - (dist / range)) * (Config.BeepVolume or 1.0)))
-    DebugPrint('MAIN', string.format('Proximity beep received — dist: %.1fm | vol: %.2f', dist, vol))
     SendNUIMessage({ action = 'playBeep', volume = vol })
 end)

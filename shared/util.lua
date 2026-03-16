@@ -1,20 +1,6 @@
 -- ─────────────────────────────────────────────────────────────
---  shared/util.lua  —  helpers available to all scripts
+--  shared/util.lua  —  helpers available to all client modules
 -- ─────────────────────────────────────────────────────────────
-
---- Debug print — outputs to the F8 / txAdmin console when Config.Debug is true.
---- tag  : short label shown in brackets, e.g. 'ERS', 'MAIN', 'MENU'
---- msg  : message string (or any value — tostring is applied)
-function DebugPrint(tag, msg)
-    if not Config or not Config.Debug then return end
-    print(string.format('^5[BC:%s] %s^7', tostring(tag), tostring(msg)))
-end
-
---- Always-on error print — shown regardless of Config.Debug.
---- Use for genuine unexpected failures (export crashes, nil where not expected).
-function ErrorPrint(tag, msg)
-    print(string.format('^1[BC:%s] ERROR: %s^7', tostring(tag), tostring(msg)))
-end
 
 --- Returns two formatted strings: date ("YYYY-MM-DD") and time ("HH:MM:SS")
 --- Uses GetLocalTime() — the FiveM-safe way to read the client's system clock.

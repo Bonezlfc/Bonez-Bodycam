@@ -1,16 +1,6 @@
 Config = {}
 
 -- ─────────────────────────────────────────────────────────────
---  DEBUG
--- ─────────────────────────────────────────────────────────────
---  Set to true to print state changes and errors to the F8 console.
---  All output is prefixed with [BC:...] so it is easy to filter.
---  Turn off in production — it adds a small amount of overhead.
--- ─────────────────────────────────────────────────────────────
-
-Config.Debug = false
-
--- ─────────────────────────────────────────────────────────────
 --  KEYBINDS / COMMANDS
 -- ─────────────────────────────────────────────────────────────
 
@@ -35,10 +25,8 @@ Config.Defaults = {
     showCallout  = true,
     showTracking = true,
     showUnit     = true,
-
-    -- Manual service type shown on overlay when ERS is not running.
-    -- Leave blank ('') to show no service badge when ERS is absent.
-    manualServiceType = '',
+    -- Unit ID and Service Type are set by players via the in-game menu,
+    -- not here. They persist per-player via KVP.
 }
 
 -- ─────────────────────────────────────────────────────────────
@@ -49,8 +37,6 @@ Config.Defaults = {
 -- Right-click a role in Discord (Developer Mode on) → "Copy Role ID", paste it below.
 -- Leave as an empty table ({}) to allow ALL players to open the menu.
 Config.AdminRoles = {
-    -- "000000000000000000",   -- example: Admin
-    -- "000000000000000001",   -- example: Moderator
 }
 
 -- ─────────────────────────────────────────────────────────────

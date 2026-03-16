@@ -10,5 +10,5 @@
 
 configS = {}
 
-configS.bot_token = "YOUR_BOT_TOKEN_HERE"
-configS.server_id = "YOUR_DISCORD_SERVER_ID_HERE"
+configS.bot_token = ""   -- paste your Discord bot token here
+configS.server_id = ""   -- paste your Discord server (guild) ID here

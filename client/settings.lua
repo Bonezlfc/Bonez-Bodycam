@@ -10,7 +10,7 @@
 
 Settings = {}
 
-local KVP_PREFIX = 'Bonez-Bodycam_'
+local KVP_PREFIX = 'bonez-bodycam_'
 
 -- ── helpers ──────────────────────────────────────────────────
 
@@ -48,7 +48,8 @@ function Settings.Load()
     Settings.showCallout       = KvpBool('showCallout',        d.showCallout)
     Settings.showTracking      = KvpBool('showTracking',       d.showTracking)
     Settings.showUnit          = KvpBool('showUnit',           d.showUnit)
-    Settings.manualServiceType = KvpStr ('manualServiceType',  d.manualServiceType)
+    Settings.manualUnitId      = KvpStr ('manualUnitId',       '')
+    Settings.manualServiceType = KvpStr ('manualServiceType',  '')
 end
 
 function Settings.Save()
@@ -60,6 +61,7 @@ function Settings.Save()
     SaveBool('showCallout',       Settings.showCallout)
     SaveBool('showTracking',      Settings.showTracking)
     SaveBool('showUnit',          Settings.showUnit)
+    SaveStr ('manualUnitId',      Settings.manualUnitId)
     SaveStr ('manualServiceType', Settings.manualServiceType)
 end
 
@@ -73,6 +75,7 @@ function Settings.Reset()
     Settings.showCallout       = d.showCallout
     Settings.showTracking      = d.showTracking
     Settings.showUnit          = d.showUnit
-    Settings.manualServiceType = d.manualServiceType
+    Settings.manualUnitId      = ''
+    Settings.manualServiceType = ''
     Settings.Save()
 end

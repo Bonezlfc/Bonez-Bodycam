@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 lua54 'yes'
 
-name        'Bonez-Bodycam'
+name        'bonez-bodycam'
 description 'Bodycam overlay with Axon, Motorola, and Generic styles. Optional night_ers integration for on-shift detection.'
 author      'Bonez Workshop'
 version     '2.1.0'
